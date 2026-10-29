@@ -130,11 +130,26 @@ class Wire:
 
 # ALU
 def alu(A, B, S):
-    # copy your own ALU implementation here
-
+    # write your own code here
+    if S == ALU_S_ADD:
+        Y = A + B
+    elif S == ALU_S_SUB:
+        Y = A - B
+    elif S == ALU_S_AND:
+        Y = A & B
+    elif S == ALU_S_OR:
+        Y = A | B
+    elif S == ALU_S_XOR:
+        Y = A ^ B
+    elif S == ALU_S_SLL:
+        Y = A << B
+    elif S == ALU_S_SRL:
+        Y = A.logical_rshift(B)
+    elif S == ALU_S_SRA:
+        Y = A >> B
     else:
         print("Undefined selection signal")
-        Y = utils.Wire(0, BIT_W)
+        Y = Wire(0, BIT_W)
 
     return Y
 
@@ -178,9 +193,27 @@ def reg_write(A3, WE, WD3):
 
 # Datapath
 def datapath(dp_type, op, a1, a2, a3, maddr):
-    # Write your own code here 
+    # ALU Operation
+    if dp_type == DP_ALU:
+        D1, D2 = reg_read(a1, a2)
+        Y = alu(D1, D2, op)
+        reg_write(a3, True, Y)
 
-    
+    # Memory Access
+    elif dp_type == DP_MEM:
+        if op == MEM_R:
+            data = dmem_access(maddr, MEM_R, None)
+            reg_write(a3, True, data)
+
+        elif op == MEM_W:
+            D1, _ = reg_read(a1, Wire(0, BIT_W))
+            dmem_access(maddr, MEM_W, D1)
+
+        else:
+            print("Undefined memory operation")
+
+    else:
+        print("Undefined datapath operation")
 
 # Main routine for test
 if __name__ == "__main__":
